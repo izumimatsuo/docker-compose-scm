@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  gitlab:
+    image: gitlab/gitlab-ce
+    container_name: gitlab
+    restart: always
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url "http://${HOST_ADDR:-loalhost}"
+        gitlab_rails['gitlab_shell_ssh_port'] = 4022
+        # Add any other gitlab.rb configuration here, each on its own line
+    ports:
+      - 80:80
+      - 443:443
+      - '4022:22'
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_data:/var/opt/gitlab
+    networks:
+      gitlab_net:
+        ipv4_address: 172.27.0.2
+
+  runner:
+    image: gitlab/gitlab-runner
+    container_name: runner
+    restart: always
+    volumes:
+      - runner_config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      gitlab_net:
+        ipv4_address: 172.27.0.3
+
+networks:
+  gitlab_net:
+    ipam:
+      config:
+      - subnet: 172.27.0.0/24
+
+volumes:
+  gitlab_config:
+  gitlab_data:
+  runner_config:
