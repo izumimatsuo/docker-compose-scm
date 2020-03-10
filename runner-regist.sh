@@ -9,6 +9,8 @@ docker-compose exec runner gitlab-runner register \
   --registration-token "$1" \
   --clone-url "http://gitlab" \
   --executor docker \
+  --docker-privileged \
   --docker-image "docker:stable" \
+  --docker-volumes /var/run/docker.sock:/var/run/docker.sock \
   --docker-network-mode "${DOCKER_NETWORK}" \
   --docker-pull-policy "if-not-present"
